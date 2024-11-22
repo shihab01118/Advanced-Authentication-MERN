@@ -7,6 +7,7 @@ import {
   sendVerificationEmail,
   sendWelcomeEmail,
   sendPasswordResetEmail,
+  sendResetSuccessEmail
 } from "../mailtrap/emails.js";
 import { User } from "../models/user.model.js";
 
@@ -184,15 +185,49 @@ export const forgotPassword = async (req, res) => {
       `${process.env.CLIENT_BASE_URL}/reset-password/${resetToken}`
     );
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "password reset link sent to your email",
-      });
+    res.status(200).json({
+      success: true,
+      message: "password reset link sent to your email",
+    });
   } catch (error) {
     // handle unexpected errors
-    console.log(error);
+    console.log("Error in forgot password: ", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  try {
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpiredAt: { $gt: Date.now() },
+    });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid or Expired reset token!" });
+    }
+
+    // update password
+    const hashedPassword = await bcryptjs.hash(password, 10);
+
+    // update user's field and save to database
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiredAt = undefined;
+    await user.save();
+
+    // send reset success email
+    await sendResetSuccessEmail(user.email);
+
+    res
+      .status(200)
+      .json({ success: true, message: "Password reset successful!" });
+  } catch (error) {
+    console.log("Error in reset password: ", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
