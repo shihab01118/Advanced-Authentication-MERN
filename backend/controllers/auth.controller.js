@@ -7,7 +7,7 @@ import {
   sendVerificationEmail,
   sendWelcomeEmail,
   sendPasswordResetEmail,
-  sendResetSuccessEmail
+  sendResetSuccessEmail,
 } from "../mailtrap/emails.js";
 import { User } from "../models/user.model.js";
 
@@ -228,6 +228,34 @@ export const resetPassword = async (req, res) => {
       .json({ success: true, message: "Password reset successful!" });
   } catch (error) {
     console.log("Error in reset password: ", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const checkAuth = async (req, res) => {
+  // get email from middleware
+  const email = req.email;
+
+  try {
+    // check if the user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found!" });
+    }
+
+    // send success response
+    res.status(200).json({
+      success: true,
+      user: {
+        ...user._doc,
+        password: undefined,
+      },
+    });
+  } catch (error) {
+    // handle unexpected errors
+    console.log("Error in check auth: ", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
