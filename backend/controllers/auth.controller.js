@@ -1,8 +1,14 @@
-import { User } from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
+import crypto from "crypto";
+
 import { generateVerificationToken } from "../utils/generateVerificationToken.js";
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
-import { sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/emails.js";
+import {
+  sendVerificationEmail,
+  sendWelcomeEmail,
+  sendPasswordResetEmail,
+} from "../mailtrap/emails.js";
+import { User } from "../models/user.model.js";
 
 // sign up endpoint
 export const signup = async (req, res) => {
@@ -155,12 +161,38 @@ export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
+    // check if the user exists
     const user = await User.findOne({ email });
-
     if (!user) {
       return res
         .status(404)
         .json({ success: false, message: "Email not found!" });
     }
-  } catch (error) {}
+
+    // generate reset token
+    const resetToken = crypto.randomBytes(20).toString("hex");
+    const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000; // 1 hours
+
+    // update user's field and save to database
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpiredAt = resetTokenExpiresAt;
+    await user.save();
+
+    // send reset password email
+    await sendPasswordResetEmail(
+      user.email,
+      `${process.env.CLIENT_BASE_URL}/reset-password/${resetToken}`
+    );
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "password reset link sent to your email",
+      });
+  } catch (error) {
+    // handle unexpected errors
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
