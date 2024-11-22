@@ -101,9 +101,66 @@ export const verifyEmail = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  res.send({ message: "login" });
+  const { email, password } = req.body;
+
+  try {
+    // check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Email not found!" });
+    }
+
+    // validate password
+    const isPasswordValid = await bcryptjs.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid Password!" });
+    }
+
+    // Generate token and set cookie
+    generateTokenAndSetCookie(res, email);
+
+    // Update the user's last login date
+    user.lasLoginDate = Date.now();
+    await user.save();
+
+    // Send success response
+    res.status(200).json({
+      success: true,
+      message: "Login successful!",
+      user: {
+        ...user._doc,
+        password: undefined,
+      },
+    });
+  } catch (error) {
+    // Handle unexpected errors
+    console.log("Error when login: ", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred during login. Please try again later.",
+    });
+  }
 };
 
 export const logout = async (req, res) => {
-  res.send({ message: "logout" });
+  res.clearCookie("token");
+  res.status(200).json({ success: true, message: "Logged out successfully!" });
+};
+
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Email not found!" });
+    }
+  } catch (error) {}
 };
