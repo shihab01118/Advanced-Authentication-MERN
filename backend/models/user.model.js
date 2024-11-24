@@ -1,35 +1,35 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema(
   {
     email: {
       type: String,
       required: true,
-      unique: true,
+      unique: true
     },
     password: {
       type: String,
-      required: true,
+      required: true
     },
     name: {
       type: String,
-      required: true,
+      required: true
     },
     lasLoginDate: {
       type: Date,
-      default: Date.now,
+      default: Date.now
     },
     isVerified: {
       type: Boolean,
-      default: false,
+      default: false
     },
     resetPasswordToken: String,
     resetPasswordExpiredAt: Date,
     verificationToken: String,
-    verificationTokenExpiresAt: Date,
+    verificationTokenExpiresAt: Date
   },
   { timestamps: true }
 );
 
 // created at and updated at fields will be automatically added into the document
-export const User = mongoose.model("User", userSchema);
+export const User = mongoose.model('User', userSchema);

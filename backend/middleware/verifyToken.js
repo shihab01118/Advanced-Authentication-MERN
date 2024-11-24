@@ -1,11 +1,11 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
 
 export const verifyToken = (req, res, next) => {
   const token = req.cookies.token;
   if (!token) {
     return res
       .status(401)
-      .json({ success: false, message: "Unauthorized - No token provided!" });
+      .json({ success: false, message: 'Unauthorized - No token provided!' });
   }
 
   try {
@@ -13,13 +13,13 @@ export const verifyToken = (req, res, next) => {
     if (!decoded) {
       return res
         .status(401)
-        .json({ success: false, message: "Unauthorized - Invalid token!" });
+        .json({ success: false, message: 'Unauthorized - Invalid token!' });
     }
 
     req.email = decoded.email;
     next();
   } catch (error) {
-    console.log("Error in verify token: ", error);
+    console.log('Error in verify token: ', error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };

@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .text-title {
+    @apply text-3xl font-bold mb-6 text-center bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent;
+  }
+
+  .auth-card {
+    @apply max-w-md w-full bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden;
+  }
+
+  .btn-auth {
+    @apply w-full py-3 px-4 bg-gradient-to-r from-green-400 to-emerald-500 rounded-lg text-white font-semibold shadow-lg hover:from-green-600 hover:to-emerald-700 transition duration-200;
+  }
+}

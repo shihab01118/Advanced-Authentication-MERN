@@ -1,15 +1,15 @@
-import bcryptjs from "bcryptjs";
-import crypto from "crypto";
+import bcryptjs from 'bcryptjs';
+import crypto from 'crypto';
 
-import { generateVerificationToken } from "../utils/generateVerificationToken.js";
-import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
+import { generateVerificationToken } from '../utils/generateVerificationToken.js';
+import { generateTokenAndSetCookie } from '../utils/generateTokenAndSetCookie.js';
 import {
   sendVerificationEmail,
   sendWelcomeEmail,
   sendPasswordResetEmail,
-  sendResetSuccessEmail,
-} from "../mailtrap/emails.js";
-import { User } from "../models/user.model.js";
+  sendResetSuccessEmail
+} from '../mailtrap/emails.js';
+import { User } from '../models/user.model.js';
 
 // sign up endpoint
 export const signup = async (req, res) => {
@@ -18,7 +18,7 @@ export const signup = async (req, res) => {
   try {
     // check if all the parameters are provided
     if (!email || !password || !name) {
-      throw new Error("All fields are Required!");
+      throw new Error('All fields are Required!');
     }
 
     // check if the user is already exists
@@ -43,7 +43,7 @@ export const signup = async (req, res) => {
       password: hashedPassword,
       name,
       verificationToken,
-      verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
+      verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000
     });
 
     // save user to database
@@ -52,11 +52,11 @@ export const signup = async (req, res) => {
     // send response
     res.status(201).json({
       success: true,
-      message: "User Created Successfully!",
+      message: 'User Created Successfully!',
       user: {
         ...user._doc,
-        password: undefined,
-      },
+        password: undefined
+      }
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -71,14 +71,14 @@ export const verifyEmail = async (req, res) => {
     // find user with the verification code and verification code expired or not
     const user = await User.findOne({
       verificationToken: verificationCode,
-      verificationTokenExpiresAt: { $gt: Date.now() },
+      verificationTokenExpiresAt: { $gt: Date.now() }
     });
 
     // if the condition not fulfill, send a error response
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: "Invalid or Expired Verification Code!",
+        message: 'Invalid or Expired Verification Code!'
       });
     }
 
@@ -95,14 +95,14 @@ export const verifyEmail = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "User verified successfully!",
+      message: 'User verified successfully!',
       user: {
         ...user._doc,
-        password: undefined,
-      },
+        password: undefined
+      }
     });
   } catch (error) {
-    console.log("error in verify email: ", error);
+    console.log('error in verify email: ', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -116,7 +116,7 @@ export const login = async (req, res) => {
     if (!user) {
       return res
         .status(404)
-        .json({ success: false, message: "Email not found!" });
+        .json({ success: false, message: 'Email not found!' });
     }
 
     // validate password
@@ -124,7 +124,7 @@ export const login = async (req, res) => {
     if (!isPasswordValid) {
       return res
         .status(400)
-        .json({ success: false, message: "Invalid Password!" });
+        .json({ success: false, message: 'Invalid Password!' });
     }
 
     // Generate token and set cookie
@@ -137,25 +137,25 @@ export const login = async (req, res) => {
     // Send success response
     res.status(200).json({
       success: true,
-      message: "Login successful!",
+      message: 'Login successful!',
       user: {
         ...user._doc,
-        password: undefined,
-      },
+        password: undefined
+      }
     });
   } catch (error) {
     // Handle unexpected errors
-    console.log("Error when login: ", error);
+    console.log('Error when login: ', error);
     res.status(500).json({
       success: false,
-      message: "An error occurred during login. Please try again later.",
+      message: 'An error occurred during login. Please try again later.'
     });
   }
 };
 
 export const logout = async (req, res) => {
-  res.clearCookie("token");
-  res.status(200).json({ success: true, message: "Logged out successfully!" });
+  res.clearCookie('token');
+  res.status(200).json({ success: true, message: 'Logged out successfully!' });
 };
 
 export const forgotPassword = async (req, res) => {
@@ -167,11 +167,11 @@ export const forgotPassword = async (req, res) => {
     if (!user) {
       return res
         .status(404)
-        .json({ success: false, message: "Email not found!" });
+        .json({ success: false, message: 'Email not found!' });
     }
 
     // generate reset token
-    const resetToken = crypto.randomBytes(20).toString("hex");
+    const resetToken = crypto.randomBytes(20).toString('hex');
     const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000; // 1 hours
 
     // update user's field and save to database
@@ -187,11 +187,11 @@ export const forgotPassword = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "password reset link sent to your email",
+      message: 'password reset link sent to your email'
     });
   } catch (error) {
     // handle unexpected errors
-    console.log("Error in forgot password: ", error);
+    console.log('Error in forgot password: ', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -203,12 +203,12 @@ export const resetPassword = async (req, res) => {
   try {
     const user = await User.findOne({
       resetPasswordToken: token,
-      resetPasswordExpiredAt: { $gt: Date.now() },
+      resetPasswordExpiredAt: { $gt: Date.now() }
     });
     if (!user) {
       return res
         .status(400)
-        .json({ success: false, message: "Invalid or Expired reset token!" });
+        .json({ success: false, message: 'Invalid or Expired reset token!' });
     }
 
     // update password
@@ -225,9 +225,9 @@ export const resetPassword = async (req, res) => {
 
     res
       .status(200)
-      .json({ success: true, message: "Password reset successful!" });
+      .json({ success: true, message: 'Password reset successful!' });
   } catch (error) {
-    console.log("Error in reset password: ", error);
+    console.log('Error in reset password: ', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -242,7 +242,7 @@ export const checkAuth = async (req, res) => {
     if (!user) {
       return res
         .status(404)
-        .json({ success: false, message: "User not found!" });
+        .json({ success: false, message: 'User not found!' });
     }
 
     // send success response
@@ -250,12 +250,12 @@ export const checkAuth = async (req, res) => {
       success: true,
       user: {
         ...user._doc,
-        password: undefined,
-      },
+        password: undefined
+      }
     });
   } catch (error) {
     // handle unexpected errors
-    console.log("Error in check auth: ", error);
+    console.log('Error in check auth: ', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
