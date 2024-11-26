@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion';
 import { useRef, useState } from 'react';
-import {Loader} from "lucide-react"
+import { Loader } from 'lucide-react';
+import { useAuthStore } from '../store/authStore';
+import { enqueueSnackbar } from 'notistack';
+import { useNavigate } from 'react-router-dom';
 
 const EmailVerification = () => {
   const [verificationCode, setVerificationCode] = useState([
@@ -11,20 +14,23 @@ const EmailVerification = () => {
     '',
     ''
   ]);
-  const [loading, setLoading] = useState(false);
+
   const inputRefs = useRef([]);
+  const navigate = useNavigate();
+  const { isLoading, error, verifyEmail } = useAuthStore();
+  console.log(error);
 
   const handleChange = (index, value) => {
     const newCode = [...verificationCode];
 
     // handle pasted value
     if (value.length > 1) {
-       const pastedCode = value.slice(0, 6).split('');
+      const pastedCode = value.slice(0, 6).split('');
 
       for (let i = 0; i < 6; i++) {
         newCode[i] = pastedCode[i] || '';
       }
-      setVerificationCode(newCode)
+      setVerificationCode(newCode);
 
       // focus on the last non-empty input or the first empty input
       const lastFilledIndex = newCode.findLastIndex((digit) => digit !== '');
@@ -47,8 +53,18 @@ const EmailVerification = () => {
     }
   };
 
-  const handleVerifyEmail = (e) => {
+  const handleVerifyEmail = async (e) => {
     e.preventDefault();
+
+    try {
+      await verifyEmail(verificationCode.join(''));
+      navigate('/');
+      enqueueSnackbar('Email verified successfully!', {
+        variant: 'success'
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -78,12 +94,21 @@ const EmailVerification = () => {
               />
             ))}
           </div>
+          {error && (
+            <p className='text-red-500 text-center text-sm font-semibold'>
+              {error}
+            </p>
+          )}
           <motion.button
             whileTap={{ scale: 0.9 }}
             type='submit'
             className='btn-auth'
           >
-            {loading ? <Loader className='size-6 mx-auto animate-spin' /> : 'Verify Email'}
+            {isLoading ? (
+              <Loader className='size-6 mx-auto animate-spin' />
+            ) : (
+              'Verify Email'
+            )}
           </motion.button>
         </form>
       </div>
