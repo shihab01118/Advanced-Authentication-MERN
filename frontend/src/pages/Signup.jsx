@@ -2,17 +2,31 @@ import { motion } from 'framer-motion';
 import Input from '../components/Input';
 import { Lock, Mail, User, Loader } from 'lucide-react';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import PasswordStrengthMeter from '../components/PasswordStrengthMeter';
+import { useAuthStore } from '../store/authStore';
+import { enqueueSnackbar } from 'notistack';
 
 const Signup = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const handleSignup = (e) => {
+  const navigate = useNavigate();
+  const { signup, error, isLoading } = useAuthStore();
+
+  const handleSignup = async (e) => {
     e.preventDefault();
+
+    try {
+      await signup(name, email, password);
+      navigate('/verify-email');
+      enqueueSnackbar('Verification email sent!', {
+        variant: 'success'
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -48,6 +62,10 @@ const Signup = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
 
+          {error && (
+            (<p className='text-red-500 text-sm font-semibold'>{error}</p>)
+          )}
+
           {/* password streng meter */}
           <PasswordStrengthMeter password={password} />
 
@@ -55,8 +73,9 @@ const Signup = () => {
             whileTap={{ scale: 0.9 }}
             type='submit'
             className='btn-auth mt-6'
+            disabled={isLoading}
           >
-            {loading ? (
+            {isLoading ? (
               <Loader className='size-6 animate-spin mx-auto' />
             ) : (
               'Signup'

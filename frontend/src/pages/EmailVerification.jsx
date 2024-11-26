@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useRef, useState } from 'react';
+import {Loader} from "lucide-react"
 
 const EmailVerification = () => {
   const [verificationCode, setVerificationCode] = useState([
@@ -10,11 +11,41 @@ const EmailVerification = () => {
     '',
     ''
   ]);
+  const [loading, setLoading] = useState(false);
   const inputRefs = useRef([]);
 
-  const handleChange = (index, value) => {};
+  const handleChange = (index, value) => {
+    const newCode = [...verificationCode];
 
-  const handleKeyDown = (index, e) => {};
+    // handle pasted value
+    if (value.length > 1) {
+       const pastedCode = value.slice(0, 6).split('');
+
+      for (let i = 0; i < 6; i++) {
+        newCode[i] = pastedCode[i] || '';
+      }
+      setVerificationCode(newCode)
+
+      // focus on the last non-empty input or the first empty input
+      const lastFilledIndex = newCode.findLastIndex((digit) => digit !== '');
+      const focusIndex = lastFilledIndex < 5 ? lastFilledIndex + 1 : 5;
+      inputRefs.current[focusIndex].focus();
+    } else {
+      newCode[index] = value;
+      setVerificationCode(newCode);
+
+      // focus on the next input
+      if (value && index < 5) {
+        inputRefs.current[index + 1].focus();
+      }
+    }
+  };
+
+  const handleKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
+      inputRefs.current[index - 1].focus();
+    }
+  };
 
   const handleVerifyEmail = (e) => {
     e.preventDefault();
@@ -52,7 +83,7 @@ const EmailVerification = () => {
             type='submit'
             className='btn-auth'
           >
-            Verify Email
+            {loading ? <Loader className='size-6 mx-auto animate-spin' /> : 'Verify Email'}
           </motion.button>
         </form>
       </div>
