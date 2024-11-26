@@ -21,13 +21,33 @@ export const useAuthStore = create((set) => ({
         password
       });
       set({ user: data?.user, isAuthenticated: true, isLoading: false });
-      console.log("sign up response: ", data);
+      console.log('sign up response: ', data);
     } catch (error) {
       set({
         error: error?.response?.data?.message || 'Error in signup!',
         isLoading: false
       });
-      console.log("sign up error: ",error);
+      console.log('sign up error: ', error);
+      throw error;
+    }
+  },
+
+  login: async (email, password) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const { data } = await axios.post(`${API_URL}/login`, {
+        email,
+        password
+      });
+      set({ user: data?.user, isAuthenticated: true, isLoading: false });
+      console.log('login response: ', data);
+    } catch (error) {
+      set({
+        error: error?.response?.data?.message || 'Error in login!',
+        isLoading: false
+      });
+      console.log('login error: ', error);
       throw error;
     }
   },
@@ -40,14 +60,31 @@ export const useAuthStore = create((set) => ({
         verificationCode
       });
       set({ user: data?.user, isAuthenticated: true, isLoading: false });
-      console.log("verify email response: ", data);
+      console.log('verify email response: ', data);
       return data;
     } catch (error) {
       set({
         error: error?.response?.data?.message || 'Error verifying email!',
         isLoading: false
       });
-      console.log("verify email error: ",error);
+      console.log('verify email error: ', error);
+      throw error;
+    }
+  },
+
+  checkAuth: async () => {
+    set({ isCheckingAuth: true, error: null });
+
+    try {
+      const { data } = await axios.get(`${API_URL}/check-auth`);
+      set({ user: data?.user, isAuthenticated: true, isCheckingAuth: false });
+      console.log('check auth response: ', data);
+    } catch (error) {
+      set({
+        error: null,
+        isCheckingAuth: false
+      });
+      console.log('check auth error: ', error);
       throw error;
     }
   }

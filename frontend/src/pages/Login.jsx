@@ -1,16 +1,28 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Loader } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Input from '../components/Input';
+import { useAuthStore } from '../store/authStore';
+import { enqueueSnackbar } from 'notistack';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const navigate = useNavigate();
+  const { isLoading, error, login } = useAuthStore();
+
+  const handleLogin = async (e) => {
     e.preventDefault();
+
+    try {
+      await login(email, password);
+      navigate('/');
+      enqueueSnackbar('Login successful!', { variant: 'success' });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -38,7 +50,10 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <div className='flex items-center mb-6'>
+          <div className='flex justify-between items-center mb-6'>
+            <p className='text-red-500 text-sm font-semibold'>
+              {error ? error : ''}
+            </p>
             <Link
               to='/forgot-password'
               className='text-sm text-green-400 hover:underline'
@@ -46,12 +61,13 @@ const Login = () => {
               Forgot password?
             </Link>
           </div>
+
           <motion.button
             whileTap={{ scale: 0.9 }}
             type='submit'
             className='btn-auth'
           >
-            {loading ? (
+            {isLoading ? (
               <Loader className='size-6 animate-spin mx-auto' />
             ) : (
               'Login'
