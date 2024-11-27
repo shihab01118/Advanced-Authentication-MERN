@@ -6,6 +6,8 @@ import EmailVerification from '../pages/EmailVerification';
 import RedirectAuthenticatedUser from './RedirectAuthenticatedUser';
 import PrivateRoute from './PrivateRoute';
 import Dashboard from '../pages/Dashboard';
+import ForgotPassword from '../pages/ForgotPassword';
+import ResetPassword from '../pages/ResetPassword';
 
 const router = createBrowserRouter([
   {
@@ -39,6 +41,22 @@ const router = createBrowserRouter([
       {
         path: 'verify-email',
         element: <EmailVerification />
+      },
+      {
+        path: 'forgot-password',
+        element: (
+          <RedirectAuthenticatedUser>
+            <ForgotPassword />
+          </RedirectAuthenticatedUser>
+        )
+      },
+      {
+        path: 'reset-password/:token',
+        element: (
+          <RedirectAuthenticatedUser>
+            <ResetPassword />
+          </RedirectAuthenticatedUser>
+        )
       }
     ]
   }

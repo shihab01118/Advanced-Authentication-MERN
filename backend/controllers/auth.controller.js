@@ -7,8 +7,11 @@ import {
   sendVerificationEmail,
   sendWelcomeEmail,
   sendPasswordResetEmail,
-  sendResetSuccessEmail
-} from '../mailtrap/emails.js';
+  sendResetSuccessEmail,
+  sendVerificationEmailWithNodemailer,
+  sendWelcomeEmailWithNodemailer,
+  sendPasswordResetEmailWithNodemailer
+} from '../mailservice/emails.js';
 import { User } from '../models/user.model.js';
 
 // sign up endpoint
@@ -29,7 +32,7 @@ export const signup = async (req, res) => {
 
     // send verification code to user's email
     const verificationToken = generateVerificationToken();
-    await sendVerificationEmail(email, verificationToken);
+    await sendVerificationEmailWithNodemailer(email, verificationToken);
 
     // generate token and set in cookie
     generateTokenAndSetCookie(res, email);
@@ -91,7 +94,7 @@ export const verifyEmail = async (req, res) => {
     await user.save();
 
     // now send a welcome email to navigate
-    await sendWelcomeEmail(user.email, user.name);
+    await sendWelcomeEmailWithNodemailer(user.email, user.name);
 
     res.status(200).json({
       success: true,
@@ -180,7 +183,8 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     // send reset password email
-    await sendPasswordResetEmail(
+    await sendPasswordResetEmailWithNodemailer(
+      user.name,
       user.email,
       `${process.env.CLIENT_BASE_URL}/reset-password/${resetToken}`
     );
