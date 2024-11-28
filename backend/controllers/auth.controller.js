@@ -18,14 +18,16 @@ export const signup = async (req, res) => {
   try {
     // check if all the parameters are provided
     if (!email || !password || !name) {
-      throw new Error('All fields are Required!');
+      return res
+        .status(400)
+        .json({ success: false, message: 'All fields are required!' });
     }
 
     // check if the user is already exists
     const userAlreadyExists = await User.findOne({ email });
     if (userAlreadyExists) {
       return res
-        .status(400)
+        .status(409)
         .json({ success: false, message: 'User already exists!' });
     }
 

@@ -6,6 +6,7 @@ import path from 'path';
 
 import { connectDB } from './db/connectDB.js';
 import authRoutes from './routes/auth.route.js';
+import navItemRoutes from './routes/navItem.route.js';
 
 dotenv.config();
 
@@ -15,7 +16,10 @@ const __dirname = path.resolve();
 
 app.use(
   cors({
-    origin: ['http://localhost:5173'],
+    origin: [
+      'http://localhost:5173',
+      'https://portfolio-dashboard-5lp4.onrender.com'
+    ],
     credentials: true
   })
 );
@@ -23,6 +27,7 @@ app.use(express.json()); // allows us to parse incoming requests: req.body
 app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
+app.use('/api/nav-items', navItemRoutes);
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'frontend/dist')));
