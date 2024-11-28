@@ -4,13 +4,10 @@ import crypto from 'crypto';
 import { generateVerificationToken } from '../utils/generateVerificationToken.js';
 import { generateTokenAndSetCookie } from '../utils/generateTokenAndSetCookie.js';
 import {
-  sendVerificationEmail,
-  sendWelcomeEmail,
-  sendPasswordResetEmail,
-  sendResetSuccessEmail,
   sendVerificationEmailWithNodemailer,
   sendWelcomeEmailWithNodemailer,
-  sendPasswordResetEmailWithNodemailer
+  sendPasswordResetEmailWithNodemailer,
+  sendResetSuccessEmailWithNodemailer
 } from '../mailservice/emails.js';
 import { User } from '../models/user.model.js';
 
@@ -27,7 +24,9 @@ export const signup = async (req, res) => {
     // check if the user is already exists
     const userAlreadyExists = await User.findOne({ email });
     if (userAlreadyExists) {
-      return res.status(400).json({success: false, message: 'User already exists!'});
+      return res
+        .status(400)
+        .json({ success: false, message: 'User already exists!' });
     }
 
     // send verification code to user's email
@@ -225,7 +224,7 @@ export const resetPassword = async (req, res) => {
     await user.save();
 
     // send reset success email
-    await sendResetSuccessEmail(user.email);
+    await sendResetSuccessEmailWithNodemailer(user.name, user.email);
 
     res
       .status(200)

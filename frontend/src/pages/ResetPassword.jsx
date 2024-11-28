@@ -4,6 +4,7 @@ import { useAuthStore } from '../store/authStore';
 import { useNavigate, useParams } from 'react-router-dom';
 import Input from '../components/Input';
 import { Lock } from 'lucide-react';
+import { enqueueSnackbar } from 'notistack';
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
@@ -17,21 +18,23 @@ const ResetPassword = () => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      enqueueSnackbar('Passwords do not match', { variant: 'error' });
       return;
     }
     try {
       await resetPassword(token, password);
 
-      // toast.success(
-      //   'Password reset successfully, redirecting to login page...'
-      // );
+      enqueueSnackbar('Password reset successful! Redirecting to login...', {
+        variant: 'success'
+      });
       setTimeout(() => {
         navigate('/login');
       }, 2000);
     } catch (error) {
       console.error(error);
-      // toast.error(error.message || 'Error resetting password');
+      enqueueSnackbar(error.message || 'Error resetting password', {
+        variant: error
+      });
     }
   };
 
@@ -73,7 +76,7 @@ const ResetPassword = () => {
             type='submit'
             disabled={isLoading}
           >
-            {isLoading ? 'Resetting...' : 'Set New Password'}
+            {isLoading ? 'Please Wait...' : 'Set New Password'}
           </motion.button>
         </form>
       </div>
