@@ -4,7 +4,9 @@ import NavItem from '../models/navItem.model.js';
 export const getAllNavItems = async (req, res) => {
   try {
     const navItems = await NavItem.find().sort({ order: 1 });
-    res.status(200).json({ success: true, data: navItems });
+    res
+      .status(200)
+      .json({ success: true, message: 'Request successful!', data: navItems });
   } catch (error) {
     console.log('Error in get all nav items', error);
     res.status(500).json({ success: false, message: error.message });
