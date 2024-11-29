@@ -61,7 +61,6 @@ export const deleteSkill = async (req, res) => {
 
   try {
     const deletedSkill = await Skill.findByIdAndDelete(id);
-    console.log(deletedSkill)
 
     if (!deletedSkill) {
       return res

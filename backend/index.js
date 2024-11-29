@@ -8,7 +8,7 @@ import { connectDB } from './db/connectDB.js';
 import authRoutes from './routes/auth.route.js';
 import navItemRoutes from './routes/navItem.route.js';
 import skillsRoutes from './routes/skills.route.js';
-import reviewsRoutes from './routes/skills.route.js';
+import reviewsRoutes from './routes/reviews.route.js';
 
 dotenv.config();
 
