@@ -7,6 +7,7 @@ import path from 'path';
 import { connectDB } from './db/connectDB.js';
 import authRoutes from './routes/auth.route.js';
 import navItemRoutes from './routes/navItem.route.js';
+import skillsRoutes from './routes/skills.route.js'
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/nav-items', navItemRoutes);
+app.use('/api/skills', skillsRoutes);
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'frontend/dist')));

@@ -13,8 +13,9 @@ export const getAllNavItems = async (req, res) => {
 
 // endpoint function to create a nav item
 export const createNavItem = async (req, res) => {
+  const { label, link, isActive, order } = req.body;
+
   try {
-    const { label, link, isActive, order } = req.body;
     if (!label || !link) {
       return res
         .status(400)

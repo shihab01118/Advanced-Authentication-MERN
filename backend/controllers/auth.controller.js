@@ -9,7 +9,7 @@ import {
   sendPasswordResetEmailWithNodemailer,
   sendResetSuccessEmailWithNodemailer
 } from '../mailservice/emails.js';
-import { User } from '../models/user.model.js';
+import User from '../models/user.model.js';
 
 // sign up endpoint
 export const signup = async (req, res) => {

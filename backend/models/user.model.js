@@ -32,4 +32,6 @@ const UserSchema = new mongoose.Schema(
 );
 
 // created at and updated at fields will be automatically added into the document
-export const User = mongoose.model('User', UserSchema);
+const User = mongoose.model('User', UserSchema);
+
+export default User;
